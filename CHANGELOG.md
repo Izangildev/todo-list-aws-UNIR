@@ -9,4 +9,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Versión inicial de código.
 - CP1.3 finalizado
 - Stage deploy test passed
+- Merge completed!
 
