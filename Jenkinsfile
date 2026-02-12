@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Get Code') {
             steps {
-                // Obtener codigo de la rama develop
+                // Obtener código de la rama develop
                 git branch: 'develop', url: 'https://github.com/Izangildev/todo-list-aws-UNIR.git'
             }
         }
@@ -16,11 +16,9 @@ pipeline {
                     bandit -r src > bandit.out || true
                 '''
                 
-                 recordIssues tools: [
-                    flake8(name: 'Flake8', pattern: 'flake8.out')
-                ]
-                
+                // Combinar recordIssues en un solo bloque
                 recordIssues tools: [
+                    flake8(name: 'Flake8', pattern: 'flake8.out'),
                     pyLint(name: 'Bandit', pattern: 'bandit.out')    
                 ]
             }
