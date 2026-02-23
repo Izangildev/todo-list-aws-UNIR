@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Get Code') {
+            steps {
+                // Obtener código de la rama master
+                git branch: 'master', url: 'https://github.com/Izangildev/todo-list-aws-UNIR.git'
+                
+                // Descargar samconfig de la rama production
+                sh '''
+                    curl -o samconfig.toml \
+                    https://raw.githubusercontent.com/Izangildev/todo-list-aws-config/production/samconfig.toml
+                '''
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                sh '''
+                    sam build
+                    sam deploy --no-fail-on-empty-changeset
+                '''
+            }
+        }
+        
+        stage('Rest tests') {
+            steps {
+                sh '''
+                    export BASE_URL=$(aws cloudformation describe-stacks \
+                      --stack-name todo-list-aws-production \
+                      --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' \
+                      --region us-east-1 \
+                      --output text)
+                    
+                    pytest --junitxml=result-rest.xml -m read test/integration/todoApiTest.py
+                '''
+                
+                junit 'result-rest.xml'
+            }
+        }
+    }
+}
